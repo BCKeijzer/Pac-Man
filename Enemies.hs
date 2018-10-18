@@ -4,13 +4,13 @@ import Graphics.Gloss
 import DTypes
 
 moveEnemy1 :: Float -> GameState -> GameState
-moveEnemy1 = undefined
+moveEnemy1 fl game = game
 
 moveEnemy2 :: Float -> GameState -> GameState
-moveEnemy2 = undefined
+moveEnemy2 fl game = game
 
 moveEnemy3 :: Float -> GameState -> GameState
-moveEnemy3 = undefined
+moveEnemy3 fl game = game
 
 moveEnemy4 :: Float -> GameState -> GameState
-moveEnemy4 = undefined
+moveEnemy4 fl game = game

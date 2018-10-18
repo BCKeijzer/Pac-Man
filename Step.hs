@@ -7,5 +7,5 @@ import Graphics.Gloss
 
 update :: Float -> GameState -> GameState
 update seconden game = case gepauzeerd game of
-    WelPaused -> undefined
-    NietPaused -> undefined
+    WelPaused -> game
+    NietPaused -> game
