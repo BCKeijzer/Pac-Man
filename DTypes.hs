@@ -37,13 +37,13 @@ data Gewonnen = Gewonnen | NogBezig
 initialState :: GameState
 initialState = Game 
     {
-        spelerLocatie = (0,0),
+        spelerLocatie = (30,30),
         richting = SpelerUp,
         enemyLocatie1 = (10,10),
         enemyLocatie2 = (-10,-10),
         enemyLocatie3 = (10,-10),
         enemyLocatie4 = (-10,10),
-        muurLocatie = [(Muur 25 50 50 (-50)), (Muur 60 40 (-80) (-30))],
+        muurLocatie = [(Muur 25 50 100 (-150)), (Muur 60 40 (-80) (-30)), (Muur 200 20 0 0)],
         levend = NogLevend,
         punten = 0,
         voedsel = [],

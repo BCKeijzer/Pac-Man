@@ -17,5 +17,15 @@ spookCollision game = case aardbeiModus game of
 aardbeiCollision :: GameState -> GameState
 aardbeiCollision game = game
 
+muurCollisionLinks :: GameState -> Bool
+muurCollisionRechts :: GameState -> Bool
+muurCollisionBoven :: GameState -> Bool
+muurCollisionOnder :: GameState -> Bool
+
 muurCollision :: GameState -> Bool
-muurCollision game = False
+muurCollision game = or $ map (mCol $ spelerLocatie game) $ muurLocatie game
+    where mCol (spelerx, spelery) (Muur muurX muurY muurTX muurTY) =
+                muurTX - (muurX / 2) <= spelerx + 10 &&                 -- ^ linker bound
+                muurTX + (muurX / 2) >= spelerx - 10 &&                 -- ^ rechter bound
+                muurTY - (muurY / 2) <= spelery + 10 &&                 -- ^ lower bound
+                muurTY + (muurY / 2) >= spelery - 10                    -- ^ upper bound

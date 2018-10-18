@@ -15,7 +15,7 @@ background = white
 -- | Dit zorgt voor het initiele scherm
 render :: GameState -> Picture
 render game = pictures ([ pacman, enemy1, enemy2, enemy3, enemy4 ] ++ (map mkWall (muurLocatie game)))
-    where   pacman = circleSolid 10
+    where   pacman = let (x,y) = spelerLocatie game in Color yellow $ translate x y $ circleSolid 10
             enemy1 = circleSolid 10
             enemy2 = circleSolid 10
             enemy3 = circleSolid 10
