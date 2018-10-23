@@ -10,7 +10,7 @@ window :: Display
 window = InWindow "Pac-Man" (hoogteBreedte, hoogteBreedte) (offset, offset)
 
 background :: Color
-background = white
+background = light $ light $ light blue
 
 -- | Dit zorgt voor het initiele scherm
 render :: GameState -> Picture
