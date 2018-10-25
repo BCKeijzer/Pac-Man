@@ -14,10 +14,11 @@ background = light $ light $ light blue
 
 -- | Dit zorgt voor het initiele scherm
 render :: GameState -> Picture
-render game = pictures ([ pacman, enemy1, enemy2, enemy3, enemy4 ] ++ (map mkWall (muurLocatie game)))
+render game = pictures $ [ pacman, enemy1, enemy2, enemy3, enemy4 ] ++ concat (map mkWall (veld game))
     where   pacman = let (x,y) = spelerLocatie game in Color yellow $ translate x y $ circleSolid 10
-            enemy1 = circleSolid 10
-            enemy2 = circleSolid 10
-            enemy3 = circleSolid 10
-            enemy4 = circleSolid 10
-            mkWall (Muur fl1 fl2 fl3 fl4) = translate fl3 fl4 $ rectangleSolid fl1 fl2
+            enemy1 = let (x, y) = enemyLocatie1 game in Color blue $ translate x y $ circleSolid 10
+            enemy2 = let (x, y) = enemyLocatie2 game in Color blue $ translate x y $ circleSolid 10
+            enemy3 = let (x, y) = enemyLocatie3 game in Color blue $ translate x y $ circleSolid 10
+            enemy4 = let (x, y) = enemyLocatie4 game in Color blue $ translate x y $ circleSolid 10
+            mkWall (Wall (fl1, fl2) (_, _)) = [translate (fl1 + 12) (fl2 - 12) $ rectangleSolid 24 24]
+            mkWall _ = []

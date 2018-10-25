@@ -8,7 +8,32 @@ import Graphics.Gloss
 update :: Float -> GameState -> GameState
 update seconden game = case gepauzeerd game of
     WelPaused -> game
-    NietPaused -> verplaatsSpeler game
+    NietPaused -> moveEnemies $ verplaatsSpeler game
+
+moveEnemies :: GameState -> GameState
+moveEnemies game = verplaatsEnemies $ moveEnemy1 $ moveEnemy2 $ moveEnemy3 $ moveEnemy4 game
+
+verplaatsEnemies :: GameState -> GameState
+verplaatsEnemies game = verplaatsEnemy1 $ verplaatsEnemy2 $ verplaatsEnemy3 $ verplaatsEnemy4 game
+
+verplaatsEnemy1 :: GameState -> GameState
+verplaatsEnemy1 game = game {enemyLocatie1 = verplaatsEnemyMain (enemyRichting1 game) (enemyLocatie1 game)}
+
+verplaatsEnemy2 :: GameState -> GameState
+verplaatsEnemy2 game = game {enemyLocatie2 = verplaatsEnemyMain (enemyRichting2 game) (enemyLocatie2 game)}
+
+verplaatsEnemy3 :: GameState -> GameState
+verplaatsEnemy3 game = game {enemyLocatie3 = verplaatsEnemyMain (enemyRichting3 game) (enemyLocatie3 game)}
+
+verplaatsEnemy4 :: GameState -> GameState
+verplaatsEnemy4 game = game {enemyLocatie4 = verplaatsEnemyMain (enemyRichting4 game) (enemyLocatie4 game)}
+
+verplaatsEnemyMain :: ERichting -> (Float, Float) -> (Float, Float)
+verplaatsEnemyMain richtingE (xEnemy, yEnemy) = case richtingE of
+    EUp -> (xEnemy, yEnemy + 1)
+    EDown -> (xEnemy, yEnemy - 1)
+    ERight -> (xEnemy + 1, yEnemy)
+    ELeft -> (xEnemy - 1, yEnemy)
 
 verplaatsSpeler :: GameState -> GameState
 verplaatsSpeler game = case richting game of

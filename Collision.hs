@@ -17,19 +17,21 @@ spookCollision game = case aardbeiModus game of
 aardbeiCollision :: GameState -> GameState
 aardbeiCollision game = game
 
+-- | Geeft true als de enemy tegen een muur aan botst
 muurCollisionEnemy :: Float -> Float -> GameState -> Bool
-muurCollisionEnemy xEnemy yEnemy game = or $ map (mCol xEnemy yEnemy) $ muurLocatie game
- where mCol xEnemy yEnemy (Muur muurX muurY muurTX muurTY) =
-            muurTX - (muurX / 2) <= xEnemy + 10 &&                 -- ^ linker bound
-            muurTX + (muurX / 2) >= xEnemy - 10 &&                 -- ^ rechter bound
-            muurTY - (muurY / 2) <= yEnemy + 10 &&                 -- ^ lower bound
-            muurTY + (muurY / 2) >= yEnemy - 10                    -- ^ upper bound
+muurCollisionEnemy xEnemy yEnemy game = not (any (mColE (xEnemy, yEnemy)) $ veld game)
 
--- Geeft een bool die True is als de speler tegen iets aan botst
 muurCollision :: GameState -> Bool
-muurCollision game = or $ map (mCol $ spelerLocatie game) $ muurLocatie game
-    where mCol (spelerx, spelery) (Muur muurX muurY muurTX muurTY) =
-                muurTX - (muurX / 2) <= spelerx + 10 &&                 -- ^ linker bound
-                muurTX + (muurX / 2) >= spelerx - 10 &&                 -- ^ rechter bound
-                muurTY - (muurY / 2) <= spelery + 10 &&                 -- ^ lower bound
-                muurTY + (muurY / 2) >= spelery - 10                    -- ^ upper bound
+muurCollision game = any (mCol $ spelerLocatie game) $ veld game
+
+mColE :: (Float, Float) -> Field -> Bool
+mColE (loperX, loperY) (Wall (x1Muur, y1Muur) (x2Muur, y2Muur)) =
+    loperX + 11 >= x1Muur && loperX - 11 <= x2Muur &&
+    loperY - 11 <= y1Muur && loperY + 11 >= y2Muur
+mColE _ _ = True
+
+mCol :: (Float, Float) -> Field -> Bool
+mCol (loperX, loperY) (Wall (x1Muur, y1Muur) (x2Muur, y2Muur)) =
+    loperX + 10 >= x1Muur && loperX - 10 <= x2Muur &&
+    loperY - 10 <= y1Muur && loperY + 10 >= y2Muur
+mCol _ _ = True
