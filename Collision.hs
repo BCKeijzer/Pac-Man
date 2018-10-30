@@ -32,6 +32,6 @@ mColE _ _ = True
 
 mCol :: (Float, Float) -> Field -> Bool
 mCol (loperX, loperY) (Wall (x1Muur, y1Muur) (x2Muur, y2Muur)) =
-    loperX + 10 >= x1Muur && loperX - 10 <= x2Muur &&
-    loperY - 10 <= y1Muur && loperY + 10 >= y2Muur
+    loperX + 11 >= x1Muur && loperX - 11 <= x2Muur &&
+    loperY - 11 <= y1Muur && loperY + 11 >= y2Muur
 mCol _ _ = True

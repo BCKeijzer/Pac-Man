@@ -5,10 +5,10 @@ import Enemies
 import DTypes
 import Graphics.Gloss
 
-update :: Float -> GameState -> GameState
+update :: Float -> GameState -> IO GameState
 update seconden game = case gepauzeerd game of
-    WelPaused -> game
-    NietPaused -> moveEnemies $ verplaatsSpeler $ verplaatsSpelerMain game
+    WelPaused -> return $ game
+    NietPaused -> return $ moveEnemies $ verplaatsSpeler $ verplaatsSpelerMain game
 
 moveEnemies :: GameState -> GameState
 moveEnemies game = verplaatsEnemies $ moveEnemy1 $ moveEnemy2 $ moveEnemy3 $ moveEnemy4 game
