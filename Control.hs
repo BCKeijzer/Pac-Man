@@ -10,27 +10,28 @@ import Graphics.Gloss.Interface.Pure.Game
 handleKeys :: Event -> GameState -> GameState
 
 handleKeys (EventKey (SpecialKey KeyUp) Down _ _) game 
-    = game {richting = SpelerUp}
-        where   spelerUp = let (x,y) = spelerLocatie game in (x, y+1)
-handleKeys (EventKey (SpecialKey KeyUp) Up _ _) game = game {richting = SpelerStill}
+    -- | mUp game  = game {richting = SpelerUp}
+    -- | otherwise 
+    = game {mogelijkerichting = MUp}          
 
 handleKeys (EventKey (SpecialKey KeyDown) Down _ _) game
-    = game {richting = SpelerDown}
-        where   spelerDown = let (x,y) = spelerLocatie game in (x, y-1)
-handleKeys (EventKey (SpecialKey KeyDown) Up _ _) game = game {richting = SpelerStill}
+  --  | mDown game = game {richting = SpelerDown}
+   -- | otherwise 
+   = game {mogelijkerichting = MDown}
 
 handleKeys (EventKey (SpecialKey KeyRight) Down _ _) game
-    = game {richting = SpelerRight}
-        where   spelerRight = let (x,y) = spelerLocatie game in (x + 1, y)
-handleKeys (EventKey (SpecialKey KeyRight) Up _ _) game = game {richting = SpelerStill}
+   -- | mRight game = game {richting = SpelerRight}
+   -- | otherwise 
+   = game {mogelijkerichting = MRight}
 
 handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) game
-    = game {richting = SpelerLeft}
-    where   spelerLinks = let (x,y) = spelerLocatie game in (x - 1, y)
-handleKeys (EventKey (SpecialKey KeyLeft) Up _ _) game = game {richting = SpelerStill}
-    
+   -- | mLeft game = game {richting = SpelerLeft}
+   -- | otherwise 
+   = game {mogelijkerichting = MLeft}
+
 handleKeys (EventKey (Char 'p') Down _ _) game = case gepauzeerd game of
     NietPaused -> game { gepauzeerd = WelPaused }
     WelPaused -> game { gepauzeerd = NietPaused }
 
 handleKeys _ game = game
+

@@ -8,7 +8,7 @@ import Graphics.Gloss
 update :: Float -> GameState -> GameState
 update seconden game = case gepauzeerd game of
     WelPaused -> game
-    NietPaused -> moveEnemies $ verplaatsSpeler game
+    NietPaused -> moveEnemies $ verplaatsSpeler $ verplaatsSpelerMain game
 
 moveEnemies :: GameState -> GameState
 moveEnemies game = verplaatsEnemies $ moveEnemy1 $ moveEnemy2 $ moveEnemy3 $ moveEnemy4 game
@@ -34,6 +34,43 @@ verplaatsEnemyMain richtingE (xEnemy, yEnemy) = case richtingE of
     EDown -> (xEnemy, yEnemy - 1)
     ERight -> (xEnemy + 1, yEnemy)
     ELeft -> (xEnemy - 1, yEnemy)
+
+verplaatsSpelerMain :: GameState -> GameState    
+verplaatsSpelerMain game = case mogelijkerichting game of
+        MUp    |  mUp game    -> game {richting = SpelerUp, mogelijkerichting = MGeen}
+        MUp    -> game
+        MDown  |  mDown game  -> game {richting = SpelerDown, mogelijkerichting = MGeen}
+        MDown  -> game
+        MRight |  mRight game -> game {richting = SpelerRight, mogelijkerichting = MGeen}
+        MRight -> game
+        MLeft  |  mLeft game  -> game {richting = SpelerLeft, mogelijkerichting = MGeen}
+        MLeft  -> game
+        MGeen  -> game
+
+mUp :: GameState -> Bool
+mUp game  | muurCollision game2 = False
+          | otherwise  = True
+         where game2 = game {spelerLocatie = anderCoor (spelerLocatie game)}
+               anderCoor (x,y) = (x, y+1)
+
+mDown :: GameState -> Bool
+mDown game | muurCollision game2 = False
+           | otherwise  = True
+         where game2 = game {spelerLocatie = anderCoor (spelerLocatie game)}
+               anderCoor (x,y) = (x, y-1)
+
+mRight :: GameState -> Bool
+mRight game | muurCollision game2 = False
+            | otherwise  = True
+         where game2 = game {spelerLocatie = anderCoor (spelerLocatie game)}
+               anderCoor (x,y) = (x+1, y)
+
+mLeft :: GameState -> Bool
+mLeft game | muurCollision game2 = False
+           | otherwise  = True
+         where game2 = game {spelerLocatie = anderCoor (spelerLocatie game)}
+               anderCoor (x,y) = (x-1, y)
+
 
 verplaatsSpeler :: GameState -> GameState
 verplaatsSpeler game = case richting game of
