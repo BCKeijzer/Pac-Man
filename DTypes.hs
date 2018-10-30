@@ -8,7 +8,9 @@ import Graphics.Gloss.Data.Color
 data GameState = Game
     {
         spelerLocatie :: (Float,Float),
+        mogelijkerichting :: MRichting,
         richting :: Richting,
+        enemyMode :: EnemyMode,
         enemyLocatie1 :: (Float, Float),
         enemyLocatie2 :: (Float, Float),
         enemyLocatie3 :: (Float, Float),
@@ -21,14 +23,18 @@ data GameState = Game
         veld :: [Field],
         levend :: Levend,
         punten :: Int,
+        highscores :: String,
         voedsel :: [Voedsel],
         aardbei :: [Aardbei],
         aardbeiModus :: AardbeiModus,
         gepauzeerd :: Paused,
-        gewonnen :: Gewonnen
+        gewonnen :: Gewonnen,
+        tijd :: Int
     }
 
 data Richting = SpelerUp | SpelerDown | SpelerRight | SpelerLeft | SpelerStill
+data MRichting = MUp | MRight | MDown | MLeft | MGeen
+data EnemyMode = Scatter | Chase | ModusDown
 data ERichting = EUp | EDown | ERight | ELeft
 data Muur = Muur Float Float Float Float
 data Levend = NogLevend | Dood
@@ -46,15 +52,17 @@ instance Eq ERichting where
     EUp == EUp = True
     _ == _ = False
 
-initialState :: GameState
-initialState = Game 
+initialState :: String -> GameState
+initialState highscoreLijst = Game 
     {
-        spelerLocatie = (0,(-30)),
+        spelerLocatie = ((-12),(84)),
+        mogelijkerichting = MGeen,
         richting = SpelerStill,
-        enemyLocatie1 = (0,(-50)),
-        enemyLocatie2 = (0,(-50)),
-        enemyLocatie3 = (0,(-50)),
-        enemyLocatie4 = (0,(-50)),
+        enemyMode = ModusDown,
+        enemyLocatie1 = (10,(-30)),
+        enemyLocatie2 = (5,(-30)),
+        enemyLocatie3 = ((-5),(-30)),
+        enemyLocatie4 = ((-10),(-30)),
         enemyRichting1 = EUp,
         enemyRichting2 = EUp,
         enemyRichting3 = EUp,
@@ -63,13 +71,28 @@ initialState = Game
         veld = veldLijst,
         levend = NogLevend,
         punten = 0,
+        highscores = highscoreLijst,
         voedsel = [],
         aardbei = [],
         aardbeiModus = AardbeiUit,
         gepauzeerd = NietPaused,
-        gewonnen = NogBezig
+        gewonnen = NogBezig,
+        tijd = 0
     }
 
+
+scatterLocatie :: Int -> (Float, Float)
+scatterLocatie getal
+ | getal == 1       = ((-240), (240))
+ | getal == 2       = ((240),  (240))
+ | getal == 3       = ((240),  (-240))
+ | getal == 4       = ((-240), (-240))
+
+
+instance Eq EnemyMode where
+    Scatter == Scatter = True
+    Chase == Chase = True
+    _ == _ = False
 --instance Eq Field where
 --    Wall (x1,y1) (x2, y2)  == (x, y) = x1 <= x && x <= x2 && y1 <= y && y <= y2
 
@@ -78,35 +101,34 @@ initialState = Game
 -- | 
 veldLijst :: [Field]
 veldLijst = concat [rij0, rij1, rij2, rij3, rij4, rij5, rij6, rij7, rij8, rij9, rij10, rij11,
-                    rij12, rij13, rij14, rij15, rij16, rij17, rij18, rij19, rij20, rij21, rij22]
+                    rij12, rij13, rij14, rij15, rij16, rij17, rij18, rij19, rij20, rij21]
  where  rij0 = [mkWall ((-264), 264), mkWall ((-240), 264), mkWall ((-216), 264), mkWall ((-192), 264),
                 mkWall ((-168), 264), mkWall ((-144), 264), mkWall ((-120), 264), mkWall ((-96), 264),
                 mkWall ((-72), 264), mkWall ((-48), 264), mkWall ((-24), 264), mkWall (0, 264),
                 mkWall (24,264), mkWall (48,264), mkWall (72,264), mkWall (96,264), mkWall (120,264),
-                mkWall (144,264), mkWall (168,264), mkWall (192,264), mkWall (216,264), mkWall (240,264),
-                mkWall (264,240)]
-        rij1 = [mkWall ((-264), 240), mkWall ((-72), 240), mkWall ((-24), 240), mkWall (240, 240)]
-        rij2 = [mkWall ((-264), 216), mkWall ((-216), 216), mkWall ((-168), 216), mkWall ((-144), 216), mkWall((-120),216), mkWall (240, 216)]
-        rij3 = [mkWall ((-264), 192), mkWall ((-216), 192), mkWall ((-168), 192), mkWall ((-72), 192), mkWall (240, 192)]
-        rij4 = [mkWall ((-264), 168), mkWall ((-120), 168), mkWall ((-96), 168), mkWall ((-72),168), mkWall (240, 168)]
-        rij5 = [mkWall ((-264), 144), mkWall ((-240), 144), mkWall ((-216),144), mkWall ((-192),144), mkWall ((-168),144), mkWall ((-120),144), mkWall (240, 144)]
-        rij6 = [mkWall ((-264), 120), mkWall (240, 120)]
-        rij7 = [mkWall ((-264), 96), mkWall ((-216), 96), mkWall ((-168), 96), mkWall (168, 96), mkWall (192, 96), mkWall (240, 96)]
-        rij8 = [mkWall ((-264), 72), mkWall (240, 72)]
-        rij9 = [mkWall ((-264), 48), mkWall (240, 48)]
+                mkWall (144,264), mkWall (168,264), mkWall (192,264), mkWall (216,264),
+                mkWall (240,264)]
+        rij1 = [mkWall ((-264), 240), mkWall ((-72), 240), mkWall ((-24), 240), mkWall (120, 240)]
+        rij2 = [mkWall ((-264), 216), mkWall ((-216), 216), mkWall ((-168), 216), mkWall ((-144), 216), mkWall((-120),216), mkWall ((-24), 216), mkWall (24, 216), mkWall (48, 216), mkWall (72,216), mkWall (168, 216), mkWall (192, 216), mkWall (240, 216), mkWall (240, 240)]
+        rij3 = [mkWall ((-264), 192), mkWall ((-216), 192), mkWall ((-168), 192), mkWall ((-72), 192), mkWall ((-24), 192), mkWall (120, 192), mkWall (168, 192), mkWall (240, 192)]
+        rij4 = [mkWall ((-264), 168), mkWall ((-120), 168), mkWall ((-96), 168), mkWall ((-72),168), mkWall (24, 168), mkWall (48, 168), mkWall (72,168),mkWall (168, 168), mkWall (216, 168), mkWall (240, 168)]
+        rij5 = [mkWall ((-264), 144), mkWall ((-240), 144), mkWall ((-216),144), mkWall ((-192),144), mkWall ((-168),144), mkWall ((-120),144), mkWall ((-24), 144), mkWall (120, 144), mkWall (216, 144), mkWall (240, 144)]
+        rij6 = [mkWall ((-264), 120), mkWall ((-48),120), mkWall ((-24),120), mkWall (0,120), mkWall (24, 120), mkWall (72, 120), mkWall (96, 120), mkWall (120, 120), mkWall (168, 120), mkWall (240, 120)]
+        rij7 = [mkWall ((-264), 96), mkWall ((-216), 96), mkWall ((-168), 96), mkWall ((-144),96), mkWall ((-120),96), mkWall ((-96), 96), mkWall (0, 96), mkWall (168, 96), mkWall (192, 96), mkWall (240, 96)]
+        rij8 = [mkWall ((-264), 72), mkWall ((-216), 72), mkWall ((-96), 72), mkWall ((-72), 72), mkWall ((-24), 72), mkWall (0, 72), mkWall (48, 72), mkWall (72,72), mkWall (96, 72), mkWall (120,72), mkWall (240, 72)]
+        rij9 = [mkWall ((-264), 48), mkWall ((-216),48), mkWall ((-192),48), mkWall ((-168), 48), mkWall ((-144), 48), mkWall (96, 48), mkWall (240, 48)]
         rij10 = [mkWall ((-264), 24), mkWall ((-96), 24), mkWall ((-48),24), mkWall ((-24), 24), mkWall (0, 24), mkWall (24,24), mkWall (48,24), mkWall (240, 24)]
-        rij11 = [mkWall ((-264), 0), mkWall ((-120), 0), mkWall ((-96),0), mkWall ((-48),0), mkWall (48, 0), mkWall (240, 0)]
+        rij11 = [mkWall ((-264), 0), mkWall ((-240), 0), mkWall ((-216), 0), mkWall ((-168), 0), mkWall ((-120), 0), mkWall ((-96),0), mkWall ((-48),0), mkWall (48, 0), mkWall (240, 0)]
         rij12 = [mkWall ((-264), (-24)), mkWall ((-96),(-24)), mkWall ((-48), (-24)), mkWall (48, (-24)), mkWall (240, (-24))]
-        rij13 = [mkWall ((-264), (-48)), mkWall ((-144),(-48)), mkWall (240, (-48))]
-        rij14 = [mkWall ((-264), (-72)), mkWall ((-144),(-72)), mkWall ((-120), (-72)), mkWall ((-96), (-72)), mkWall ((-72), (-72)), mkWall ((-24), (-72)), mkWall (0, (-72)), mkWall (240, (-72))]
-        rij15 = [mkWall ((-264), (-96)), mkWall (240, (-96))]
-        rij16 = [mkWall ((-264), (-120)), mkWall (240, (-120))]
-        rij17 = [mkWall ((-264), (-144)), mkWall (240, (-144))]
-        rij18 = [mkWall ((-264), (-168)), mkWall (240, (-168))]
-        rij19 = [mkWall ((-264), (-192)), mkWall (240, (-192))]
-        rij20 = [mkWall ((-264), (-216)), mkWall (240, (-216))]
-        rij21 = [mkWall ((-264), (-240)), mkWall (240, (-240))]
-        rij22 = [mkWall ((-264), (-240)), mkWall ((-240), (-240)), mkWall ((-216), (-240)), mkWall ((-192), (-240)),
+        rij13 = [mkWall ((-264), (-48)), mkWall ((-216),(-48)), mkWall ((-192), (-48)), mkWall ((-144),(-48)), mkWall (240, (-48))]
+        rij14 = [mkWall ((-264), (-72)), mkWall ((-216),(-72)), mkWall ((-144),(-72)), mkWall ((-120), (-72)), mkWall ((-96), (-72)), mkWall ((-72), (-72)), mkWall ((-24), (-72)), mkWall (0, (-72)), mkWall (240, (-72))]
+        rij15 = [mkWall ((-264), (-96)), mkWall ((-216),(-96)), mkWall ((-192), (-96)), mkWall ((-24),(-96)), mkWall (96, (-96)), mkWall (120, (-96)), mkWall(144, (-96)), mkWall (192, (-96)), mkWall (216, (-96)), mkWall (240, (-96))]
+        rij16 = [mkWall ((-264), (-120)), mkWall ((-144),(-120)), mkWall ((-96),(-120)), mkWall ((-48),(-120)), mkWall ((-24),(-120)), mkWall (240, (-120))]
+        rij17 = [mkWall ((-264), (-144)), mkWall ((-216), (-144)), mkWall ((-168), (-144)), mkWall ((-96),(-144)), mkWall ((-144), (-144)), mkWall (72, (-144)), mkWall (120, (-144)), mkWall (144, (-144)), mkWall (168, (-144)), mkWall (192, (-144)), mkWall (240, (-144))]
+        rij18 = [mkWall ((-264), (-168)), mkWall ((-216), (-168)), mkWall ((-144), (-168)), mkWall ((-96),(-168)), mkWall ((-48),(-168)), mkWall (72, (-168)), mkWall (240, (-168))]
+        rij19 = [mkWall ((-264), (-192)), mkWall ((-216), (-192)), mkWall ((-192), (-192)), mkWall ((-96),(-192)), mkWall ((-48),(-192)), mkWall (72, (-192)), mkWall (120, (-192)), mkWall (144, (-192)), mkWall (168, (-192)), mkWall (192, (-192)), mkWall (240, (-192))]
+        rij20 = [mkWall ((-264), (-216)), mkWall ((-144), (-216)), mkWall ((-48),(-216)), mkWall (240, (-216))]
+        rij21 = [mkWall ((-264), (-240)), mkWall ((-240), (-240)), mkWall ((-216), (-240)), mkWall ((-192), (-240)),
                 mkWall ((-168), (-240)), mkWall ((-144), (-240)), mkWall ((-120), (-240)), mkWall ((-96), (-240)),
                 mkWall ((-72), (-240)), mkWall ((-48), (-240)), mkWall ((-24), (-240)), mkWall (0, (-240)),
                 mkWall (24,(-240)), mkWall (48,(-240)), mkWall (72,(-240)), mkWall (96,(-240)), mkWall (120,(-240)),
